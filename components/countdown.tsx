@@ -1,13 +1,14 @@
 type Props={
-    room: number,
-    countdown: number
+    countdown: number,
+    room: number
 };
 
-export default function Home({room, countdown}: Props){
+export default function Home({countdown, room}: Props){
     return (
     <div>
-        <div>{countdown} seconds before the game begins!</div>
-        <div> room number: {room}</div>
+        <div style={{fontSize: "2vw"}}>Found a match! Buckle up!</div>
+        <div style={{fontSize: "2vw"}}>Room No.{room}</div>
+        <div style={{fontSize: "2vw"}}>{countdown} seconds before the game begins!</div>
     </div>
     );
 }

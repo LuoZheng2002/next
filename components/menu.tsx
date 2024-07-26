@@ -9,13 +9,12 @@ interface Props {
 function Menu({onClick, inputValue, handleInputChange}: Props) {
     return (
         <div>
-            <div>This is the menu</div>
-            <div>Please input your name: </div>
+            <div style={{fontSize: "3vw", margin: "1vw 0vw"}}>Happy Involuting!</div>
+            <div style={{fontSize: "2vw"}}>Please input your name: </div>
             <div>
-            <input      type="text"  value={inputValue} onChange={handleInputChange}   placeholder="Type something..."    />
-            
+            <input style={{fontSize: "2vw", margin: "1vw 0vw"}}     type="text"  value={inputValue} onChange={handleInputChange}   placeholder="Type something..."    />
             </div>
-            <button onClick={onClick} disabled={inputValue? false: true}>Start the game!</button>
+            <button style={{fontSize: "2vw", backgroundColor: "lightblue", borderRadius: "0.5vw", padding: "0.5vw"}} onClick={onClick} disabled={inputValue? false: true}>Start the game!</button>
         </div>
     );
 }

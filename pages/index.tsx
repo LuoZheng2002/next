@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, KeyboardEventHandler } from 'react';
 import { Socket } from 'socket.io-client';
 import { GetServerSideProps } from 'next';
 import Menu from 'components/menu';
@@ -7,6 +7,7 @@ import Countdown from 'components/countdown';
 import Game from '@/components/game';
 import Wait from '@/components/wait';
 import Gameover from '@/components/gameover';
+import Transition from '@/components/transition';
 type Props = {
   ip: string
 };
@@ -30,9 +31,22 @@ export default function Home({ ip }: Props) {
   const [room, setRoom] = useState(-1);
   const [description, setDescription] = useState('');
   const [inputValue, setInputValue] = useState('');
-
+  const [questionnum, setQuestionnum] = useState(0);
+  const [problem, setProblem] = useState('Problem');
+  const [name, setName] = useState('your name');
+  const [opponent, setOpponent] = useState('opponent name');
+  const answerValueRef = useRef('answer');
+  const [answerer, setAnswerer] = useState(false);
+  const [correct, setCorrect] = useState(false);
+  const [answer, setAnswer] = useState('answer result');
+  const [myscore, setMyscore] = useState(100);
+  const [opponentscore, setOpponentscore] = useState(50);
+  const [addition, setAddition] = useState("+5");
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>)=>{
     setInputValue(event.target.value);
+  }
+  const onStartOver = ()=>{
+    setState('menu');
   }
   useEffect(() => {
     console.log('useEffect triggered');
@@ -54,7 +68,37 @@ export default function Home({ ip }: Props) {
       if ('description' in message){
         setDescription(message.description);
       }
-      console.log('received message from server' + message);
+      if ('questionnum' in message){
+        setQuestionnum(message.questionnum);
+      }
+      if ('name' in message){
+        setName(message.name);
+      }
+      if ('opponent' in message){
+        setOpponent(message.opponent);
+      }
+      if ('answerer' in message){
+        setAnswerer(message.answerer);
+      }
+      if ('correct' in message){
+        setCorrect(message.correct);
+      }
+      if ('answer' in message){
+        setAnswer(message.answer);
+      }
+      if ('myscore' in message){
+        setMyscore(message.myscore);
+      }
+      if ('opponentscore' in message){
+        setOpponentscore(message.opponentscore);
+      }
+      if ('addition' in message){
+        setAddition(message.addition);
+      }
+      if ('problem' in message){
+        setProblem(message.problem);
+      }
+      console.log('received message from server: ' + JSON.stringify(message));
     });
     setSocket(socket);
     socketRef.current = socket;
@@ -63,6 +107,15 @@ export default function Home({ ip }: Props) {
       console.log('useEffect destructed');
     }
   }, []);
+  
+  const handleKeyPress: KeyboardEventHandler = (event) => {
+    if (event.key === 'Enter') {
+      // Trigger your desired action here
+      console.log(`You entered: ${answerValueRef.current}`);
+      socketRef.current?.emit('message', {answer: answerValueRef.current});
+      // For example, you could call a function or set a state
+    }
+  };
 
   const renderComponent = () => {
     console.log('rerender');
@@ -70,13 +123,17 @@ export default function Home({ ip }: Props) {
       case 'menu':
         return <Menu onClick={onMenuClick} inputValue={inputValue} handleInputChange={handleInputChange} />;
       case 'wait':
-        return <Wait room = {room}/>;
+        return <Wait/>;
       case 'countdown':
-        return <Countdown countdown={countdown} room={room} />;
-      case 'ingame':
-        return <Game />;
+        return <Countdown countdown={countdown} room={room}/>;
+      case 'transition':
+        return <Transition time={countdown}/>;
+      case 'game':
+        return <Game countdown={countdown} questionnum={questionnum} problem={problem} name={name} opponent={opponent} handleKeyPress={handleKeyPress} answerValueRef={answerValueRef} answered={false} answerer={false} correct={false} answerresult={answer} myscore={myscore} opponentscore={opponentscore} addition={addition}/>;
+      case 'result':
+        return <Game countdown={countdown} questionnum={questionnum} problem={problem} name={name} opponent={opponent} handleKeyPress={handleKeyPress} answerValueRef={answerValueRef} answered={true} answerer={answerer} correct={correct} answerresult={answer} myscore={myscore} opponentscore={opponentscore} addition={addition}/>;
       case 'gameover':
-        return <Gameover description={description}/>
+        return <Gameover onClick={onStartOver} description={description}/>
       default:
         break;
     }
