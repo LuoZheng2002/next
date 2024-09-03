@@ -50,7 +50,11 @@ export default function Home({ ip }: Props) {
   }
   useEffect(() => {
     console.log('useEffect triggered');
-    const socket = io(`${ip}:3001`);
+    const socket = io(`https://happyinvoluting.com`, {
+      path: '/socket.io',
+      transports: ['websocket'],
+      secure: true
+    });
     socket.on('connect', () => {
       setConnected(true);
     });
